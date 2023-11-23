@@ -1,0 +1,119 @@
+[
+  {
+    "id": "ff0d5487-ca6e-4310-abcc-b4ba036af6f9",
+    "title": "producto 2",
+    "description": "Este es otro producto de prueba",
+    "price": 150,
+    "thumbnail": "Otra imagen",
+    "code": "xyz789",
+    "stock": 30
+  },
+  {
+    "id": "e729192d-32e2-437a-b654-cc5bc2392696",
+    "title": "producto 3",
+    "description": "Un tercer producto de prueba",
+    "price": 300,
+    "thumbnail": "Imagen 3",
+    "code": "123abc",
+    "stock": 15
+  },
+  {
+    "id": "e44a33a7-2067-4456-b53c-1cffbd690cdf",
+    "title": "producto 4",
+    "description": "Un cuarto producto de prueba",
+    "price": 500,
+    "thumbnail": "Imagen 4",
+    "code": "548asdc",
+    "stock": 25
+  },
+  {
+    "id": "06bee880-af02-43a9-b544-ce6acf805df3",
+    "title": "producto 5",
+    "description": "Un quinto producto de prueba",
+    "price": 700,
+    "thumbnail": "Imagen 5",
+    "code": "369fre",
+    "stock": 45
+  },
+  {
+    "id": "ff5de278-708b-45d5-a63a-25965c2c0e47",
+    "title": "producto 6",
+    "description": "Un sexo producto de prueba",
+    "price": 350,
+    "thumbnail": "Imagen 6",
+    "code": "123ade",
+    "stock": 15
+  },
+  {
+    "id": "a52e9c8c-0250-4ab2-bd33-f42e6ad577aa",
+    "title": "producto 7",
+    "description": "Un septimo producto de prueba",
+    "price": 390,
+    "thumbnail": "Imagen 7",
+    "code": "123def",
+    "stock": 105
+  },
+  {
+    "id": "8093e2fd-1afc-46ec-b2ee-693da420dbe9",
+    "title": "producto 8",
+    "description": "Un octavo producto de prueba",
+    "price": 300,
+    "thumbnail": "Imagen 8",
+    "code": "123ghi",
+    "stock": 15
+  },
+  {
+    "id": "fb692d38-cd1c-4e38-ad98-b82323e828dd",
+    "title": "producto 9",
+    "description": "Un noveno producto de prueba",
+    "price": 700,
+    "thumbnail": "Imagen 9",
+    "code": "123abc",
+    "stock": 15
+  },
+  {
+    "id": "1c4aac4c-3819-4af4-a62c-becb41e3de0a",
+    "title": "producto 10",
+    "description": "Un decimo producto de prueba",
+    "price": 300,
+    "thumbnail": "Imagen 10",
+    "code": "123abc",
+    "stock": 15
+  },
+  {
+    "id": "afd32302-d246-4e5d-9b1a-a82ae5ca9ed7",
+    "title": "producto 11",
+    "description": "Un decimoprimer producto de prueba",
+    "price": 307,
+    "thumbnail": "Imagen 11",
+    "code": "123abc",
+    "stock": 17
+  },
+  {
+    "id": "afd32302-d246-4e5d-9b1a-a82ae5ca9ed7",
+    "title": "producto 11",
+    "description": "Un decimoprimer producto de prueba",
+    "price": 307,
+    "thumbnail": "Imagen 11",
+    "code": "123abc",
+    "stock": 17
+  },
+  {
+    "id": "e729192d-32e2-437a-b654-cc5bc2392696",
+    "title": "producto 13",
+    "description": "Un decimotercer producto de prueba",
+    "price": 300,
+    "thumbnail": "Imagen 13",
+    "code": "123abc",
+    "stock": 15
+  },
+  {
+    "id": "68b1c4e7-7024-4f90-b115-59f1b71801b6",
+    "title": "producto 14",
+    "description": "Un decimotercer producto de prueba",
+    "price": 300,
+    "thumbnail": "Imagen 14",
+    "code": "123abc",
+    "stock": 15
+  }
+]
