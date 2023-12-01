@@ -1,72 +1,35 @@
 import { Router } from 'express';
-import CartManager from '../managers/CartManager';
-import ProductManager from '../managers/ProductManager';
+import {
+  createCart,
+  getCartById,
+  addProductToCart,
+  removeProductFromCart,
+  clearCart,
+  updateCart,
+  updateProductQuantity
+} from '../controllers/cartControllers.js';
 
 const cartRouter = Router();
-const productManager = new ProductManager();
-const cartFilePath = 'src/cart.json'
-const cartManager = new CartManager(cartFilePath)
 
 // Ruta para crear un nuevo carrito
-cartRouter.post('/', (req, res) => {
-  const newCart = {
-    id: generateUniqueCartId(),
-    products: [],
-  };
-  cartManager.addCart(newCart);
-  res.json(newCart);
-});
+cartRouter.post('/', createCart);
 
 // Ruta para obtener un carrito por su ID
-cartRouter.get('/:cid', (req, res) => {
-  const cartId = req.params.cid;
-  const cart = cartManager.findCart(cartId);
-  if (cart) {
-    res.json(cart);
-  } else {
-    res.status(404).json({ error: 'Carrito no encontrado' });
-  }
-});
+cartRouter.get('/:cid', getCartById);
 
 // Ruta para agregar un producto a un carrito
-cartRouter.post('/:cid/product/:pid', (req, res) => {
-  const cartId = req.params.cid;
-  const productId = req.params.pid;
-  const quantity = req.body.quantity || 1;
+cartRouter.post('/:cid/products/:pid', addProductToCart);
 
-  const cart = cartManager.findCart(cartId);
-  if (!cart) {
-    res.status(404).json({ error: 'Carrito no encontrado' });
-    return;
-  }
+// Ruta para quitar un producto del carrito
+cartRouter.delete('/:cid/products/:pid', removeProductFromCart);
 
-  // Encuentra el producto por su ID utilizando ProductManager
-  let product;
-  try {
-    product = productManager.getProductById(productId);
-  } catch (error) {
-    res.status(404).json({ error: 'Producto no encontrado' });
-    return;
-  }
+// Ruta para limpiar el carrito (eliminar todos los productos)
+cartRouter.delete('/:cid', clearCart);
 
-  // Verifica si ya existe el producto en el carrito
-  const existingProduct = cartManager.findProductInCart(cartId, productId);
-  if (existingProduct) {
-    existingProduct.quantity += quantity;
-  } else {
-    cartManager.addProductToCart(cartId, { product, quantity });
-  }
+// Ruta para actualizar el carrito con nuevos productos
+cartRouter.put('/:cid', updateCart);
 
-  res.json(cart);
-});
-
-cartRouter.get('/', (req, res) => {
-  const allCarts = cartManager.getCartContents();
-  res.json(allCarts);
-});
-// Función para generar un ID de carrito único
-function generateUniqueCartId() {
-  return `cart-${Math.floor(Math.random() * 100000)}`;
-}
+// Ruta para actualizar la cantidad de ejemplares de un producto en el carrito
+cartRouter.put('/:cid/products/:pid', updateProductQuantity);
 
 export default cartRouter;

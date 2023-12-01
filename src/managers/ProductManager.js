@@ -1,77 +1,83 @@
-import { v4 as uuidv4 } from 'uuid';
-import { promises as fsPromises } from 'fs';
-
-const filePath = 'src/products.json';
+import ProductModel from '../db/models/productsSchema.js';
 
 class ProductManager {
-  constructor() {
-    this.products = [];
-    this.loadProducts(); 
-  }
-
-  async loadProducts() {
+  async getProducts({ limit = 10, page = 1, sort, query }) {
     try {
-      const data = await fsPromises.readFile(filePath, 'utf8');
-      this.products = JSON.parse(data);
-      // console.log('loadProducts data', this.products)
-    } catch (err) {
-      console.log('Error loading products. File path:', filePath, 'Error:', err)
+      const options = {
+        limit: parseInt(limit),
+        page: parseInt(page),
+        sort: sort === 'desc' ? { price: -1 } : sort === 'asc' ? { price: 1 } : undefined,
+      };
+
+      const filter = query ? { category: query } : {};
+
+      const result = await ProductModel.paginate(filter, options);
+
+      return {
+        status: 'success',
+        payload: result.docs,
+        totalPages: result.totalPages,
+        prevPage: result.prevPage,
+        nextPage: result.nextPage,
+        page: result.page,
+        hasPrevPage: result.hasPrevPage,
+        hasNextPage: result.hasNextPage,
+        prevLink: result.hasPrevPage ? `/api/products?limit=${limit}&page=${result.prevPage}&sort=${sort}&query=${query}` : null,
+        nextLink: result.hasNextPage ? `/api/products?limit=${limit}&page=${result.nextPage}&sort=${sort}&query=${query}` : null,
+      };
+    } catch (error) {
+      console.log('Error al obtener productos:', error);
+      return { status: 'error', payload: error.message };
     }
   }
 
-  async saveProducts() {
-    await fsPromises.writeFile(filePath, JSON.stringify(this.products, null, 2), 'utf8');
-  }
-
-  addProduct(productData) {
-    const requiredFields = ['title', 'price']; // Agrega los campos requeridos
-    for (const field of requiredFields) {
-      if (!productData[field]) {
-        throw new Error(`Campo "${field}" es requerido.`);
+  async getProductById(id) {
+    try {
+      const product = await ProductModel.findById(id);
+      if (!product) {
+        throw new Error('Producto no encontrado');
       }
+      return product;
+    } catch (error) {
+      console.log('Error al obtener producto por ID:', error);
+      throw error;
     }
-
-    const existingProduct = this.products.find(p => p.id === productData.id);
-    if (existingProduct) {
-      throw new Error(`Ya existe un producto con el ID "${productData.id}".`);
-    }
-
-    const id = uuidv4();
-    const product = { id, ...productData };
-    this.products.push(product);
-    this.saveProducts();
-    return product;
   }
 
-  getProducts() {
-    return this.products;
+  async addProduct(productData) {
+    try {
+      const product = new ProductModel(productData);
+      await product.save();
+      return product;
+    } catch (error) {
+      console.log('Error al agregar producto:', error);
+      throw error;
+    }
   }
 
-  getProductById(id) {
-    const product = this.products.find((p) => p.id === id);
-    if (!product) {
-      throw new Error('Producto no encontrado');
+  async updateProduct(id, updatedFields) {
+    try {
+      const product = await ProductModel.findByIdAndUpdate(id, updatedFields, { new: true });
+      if (!product) {
+        throw new Error('Producto no encontrado');
+      }
+      return product;
+    } catch (error) {
+      console.log('Error al actualizar producto:', error);
+      throw error;
     }
-    return product;
   }
 
-  updateProduct(id, updatedFields) {
-    const productIndex = this.products.findIndex((p) => p.id === id);
-    if (productIndex === -1) {
-      throw new Error('Producto no encontrado');
+  async deleteProduct(id) {
+    try {
+      const product = await ProductModel.findByIdAndDelete(id);
+      return product;
+    } catch (error) {
+      console.log('Error al eliminar producto:', error);
+      throw error;
     }
-    this.products[productIndex] = { ...this.products[productIndex], ...updatedFields };
-    this.saveProducts();
-  }
-
-  deleteProduct(id) {
-    const productIndex = this.products.findIndex((p) => p.id === id);
-    if (productIndex === -1) {
-      throw new Error('Producto no encontrado');
-    }
-    this.products.splice(productIndex, 1);
-    this.saveProducts();
   }
 }
 
 export default ProductManager;
+
