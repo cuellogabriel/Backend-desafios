@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const connectionMongoDB = 'mongodb://127.0.0.1:27017/backendDesafios';
+const connectionMongoDB = 'mongodb://127.0.0.1:27017/e-commerce';
 
 async function connectToDataBase(){
     try {

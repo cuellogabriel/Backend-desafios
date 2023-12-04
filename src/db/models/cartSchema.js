@@ -1,19 +1,17 @@
 import mongoose from 'mongoose';
 
-const CartItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'products',
-    default:[]
-  },
-  quantity: {
-    type: Number,
-    default: 0,
-  },
-});
-
 const CartSchema = new mongoose.Schema({
-  products: [CartItemSchema],
+  products: [{
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'products',
+      // No necesitas el default aquí
+    },
+    quantity: {
+      type: Number,
+      default: 0,
+    },
+  }],
 });
 
 CartSchema.pre('find', function () {

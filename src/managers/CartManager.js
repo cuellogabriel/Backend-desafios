@@ -1,6 +1,5 @@
 import CartModel from '../db/models/cartSchema.js';
 import ProductModel from '../db/models/productsSchema.js';
-
 class CartManager {
   // Agregar un producto al carrito
   async addToCart(productId, cartId) {
@@ -51,27 +50,28 @@ class CartManager {
     }
   }
  
-  // Quitar un producto del carrito
-  async removeFromCart(productId, cartId) {
-    try {
-      // Obtener el carrito por su ID y cargar los productos asociados
-      let cart = await CartModel.findById(cartId).populate('products');
-      if (!cart) {
-        throw new Error('Cart not found');
-      }
+// Quitar un producto del carrito
+async removeFromCart(productId, cartId) {
+  try {
+    // Utilizar $pull para eliminar el producto del array en lugar de filter
+    const updatedCart = await CartModel.findOneAndUpdate(
+      { _id: cartId, 'products.product': productId },
+      { $pull: { products: { product: productId } } },
+      { new: true }
+    ).populate('products');
 
-      // Filtrar los productos y eliminar el producto por su ID
-      cart.products = cart.products.filter((item) => item.id !== productId);
-
-      // Guardar el carrito actualizado en la base de datos
-      await cart.save();
-      console.log('Product removed from cart:', productId);
-      return cart;
-    } catch (error) {
-      console.log('Error removing from cart:', error.message);
-      throw error;
+    if (!updatedCart) {
+      throw new Error('Cart not found or product not in cart');
     }
+
+    console.log('Product removed from cart:', productId);
+    return updatedCart;
+
+  } catch (error) {
+    console.log('Error removing from cart:', error.message);
+    throw error;
   }
+}
 
   // Limpiar el carrito (eliminar todos los productos)
   async clearCart(cartId) {
@@ -99,7 +99,7 @@ class CartManager {
   async updateCart(cartId, updatedCart) {
     try {
       // Obtener el carrito por su ID y cargar los productos asociados
-      let cart = await CartModel.findById(cartId).populate('products');
+      const cart = await CartModel.findOne({ _id: cartId });
       if (!cart) {
         throw new Error('Cart not found');
       }
@@ -122,7 +122,7 @@ class CartManager {
   async getCartContents(cartId) {
     try {
       // Obtener el carrito por su ID y cargar los productos asociados
-      const cart = await CartModel.findById(cartId).populate('products');
+      const cart = await CartModel.findOne({ _id: cartId }).populate('products');
       if (!cart) {
         throw new Error('Cart not found');
       }
@@ -139,28 +139,25 @@ class CartManager {
 async updateProductQuantity(productId, cartId, quantity) {
   try {
     // Obtener el carrito por su ID y cargar los productos asociados
-    let cart = await CartModel.findById(cartId).populate('products');
+    const cart = await CartModel.findOne({ _id: cartId }).populate('products');
+    
     if (!cart) {
       throw new Error('Cart not found');
     }
-
     // Encontrar el producto en el carrito por su ID
-    const cartProduct = cart.products.find((item) => item.product.id === productId);
-
+    const cartProduct = cart.products.find((item) => item.product == productId);
     // Verificar si el producto existe en el carrito
     if (!cartProduct) {
       throw new Error('Product not found in the cart');
     }
-
     // Actualizar la cantidad del producto en el carrito
     cartProduct.quantity = quantity;
-
     // Guardar el carrito actualizado en la base de datos
     await cart.save();
 
     console.log('Product quantity updated in cart:', productId);
     return cart;
-  } catch (error) {
+  } catch (error) { 
     console.log('Error updating product quantity in cart:', error.message);
     throw error;
   }

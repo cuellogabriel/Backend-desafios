@@ -52,7 +52,7 @@ const deleteProduct = async (req, res, next) => {
   try {
     const productId = req.params.pid;
     await productManager.deleteProduct(productId);
-    res.status(204).send();
+    res.status(204).json({status: 'success', message: 'Producto eliminado correctamente'});
   } catch (error) {
     next(error); 
   }

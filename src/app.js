@@ -11,6 +11,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import routes from './routes/index.js';
 import ProductManager from './managers/ProductManager.js';
+import CartManager from './managers/CartManager.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -42,13 +43,92 @@ connectToDataBase().then(() => {
   // Middleware de errores
   app.use(errorHandler);
 
-  // Ruta para la vista Home.handlebars
+
   const productManager = new ProductManager()
+  const cartManager = new CartManager()
+  // Ruta para la vista Home.handlebars
   app.get('/', (req, res) => {
     // Renderiza la vista home.handlebars
     const products = productManager.getProducts();
     res.render('home', { products });
   });
+
+
+
+
+  // Rutas para productos y carritos
+  app.get('/products', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 10; 
+    const page = parseInt(req.query.page) || 1;
+    const sort = req.query.sort; 
+    const query = req.query.query;
+  
+    try {
+      // Obtener productos paginados usando la lógica existente en productManager
+      const paginatedProducts = await productManager.getProducts({ limit, page, sort, query });
+  
+      // Renderizar la vista 'products.handlebars' con los productos paginados
+      res.render('products', { products: paginatedProducts.payload, currentPage: page });
+    } catch (error) {
+      // Manejar errores
+      console.error('Error al obtener productos:', error);
+      res.status(500).send('Error al obtener productos');
+    }
+  });
+
+
+
+  app.get('/products/:pid', async (req, res) => {
+    const productId = req.params.pid;
+
+    try {
+        // Obtener el producto por su ID usando la lógica en productManager
+        const product = await productManager.getProductById(productId);
+
+        // Renderizar la vista 'productDetails.handlebars' con la información del producto
+        res.render('productDetails', { product });
+    } catch (error) {
+        // Manejar errores
+        console.error('Error al obtener producto por ID:', error);
+        res.status(500).send('Error al obtener producto');
+    }
+});
+
+
+
+  app.post('/api/cart/:cid/products/:pid', async (req, res) => {
+    const { cid, pid } = req.params;
+  
+    try {
+      // Llamar a la función addToCart en el CartManager
+      await cartManager.addToCart(pid, cid);
+  
+      // Redirigir a la página de productos con un mensaje de éxito
+      res.redirect('/products?successMessage=Producto agregado al carrito');
+    } catch (error) {
+      // Redirigir con un mensaje de error si es necesario
+      res.redirect('/products?errorMessage=Error al agregar al carrito');
+    }
+  });
+
+
+
+
+  app.get('/carts/:cid', async (req, res) => {
+    const { cid } = req.params;
+
+    try {
+        // Obtener el contenido del carrito usando la lógica en cartManager
+        const cartInfo = await cartManager.getCartContents(cid);
+
+        // Renderizar la vista 'cart.handlebars' con la información del carrito
+        res.render('cart', { cartInfo });
+    } catch (error) {
+        // Manejar errores y redirigir con un mensaje de error si es necesario
+        console.error('Error al obtener el carrito:', error);
+        res.redirect('/products?errorMessage=Error al obtener el carrito');
+    }
+});
 
   // Iniciar el servidor
   const PORT = 3000;

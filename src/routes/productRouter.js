@@ -11,8 +11,8 @@ const productRouter = Router();
 
 // Rutas para ProductManager
 productRouter.get('/', getProducts);
-productRouter.get('/:pid', getProductById);
 productRouter.post('/', productValidator, addProduct);
+productRouter.get('/:pid', getProductById);
 productRouter.put('/:pid', updateProduct);
 productRouter.delete('/:pid', deleteProduct);
 

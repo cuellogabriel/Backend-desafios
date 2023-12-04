@@ -81,6 +81,8 @@ const updateProductQuantity = async (req, res, next) => {
     const cartId = req.params.cid;
     const { quantity } = req.body;
 
+    console.log('productId => ' , productId)
+
     // Validar que la cantidad sea un número positivo
     if (typeof quantity !== 'number' || quantity <= 0) {
       res.status(400).json({ error: 'La cantidad debe ser un número positivo' });

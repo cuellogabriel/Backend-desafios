@@ -1,0 +1,50 @@
+<!-- views/products.handlebars -->
+<html>
+
+<head>
+    <title>Productos</title>
+</head>
+
+<body>
+    <h1>Lista de Productos</h1>
+    
+    <!-- Mostrar mensajes de éxito o error -->
+    {{#if successMessage}}
+        <p style="color: green;">{{successMessage}}</p>
+    {{/if}}
+    {{#if errorMessage}}
+        <p style="color: red;">{{errorMessage}}</p>
+    {{/if}}
+
+    <!-- Mostrar la lista de productos -->
+    <ul>
+        {{#each products}}
+            <li>
+                <strong>{{this.title}}</strong> - Precio: {{this.price}}
+                <!-- Agregar botón para ver detalles del producto -->
+                <a href="/products/{{this._id}}">Ver Detalles</a>
+
+                <!-- Agregar formulario para agregar al carrito directamente -->
+                <form action="/api/cart/{{cartId}}/products/{{this._id}}" method="POST">
+                    <input type="hidden" name="cartId" value="{{cartId}}">
+                    <button type="submit">Agregar al Carrito</button>
+                </form>
+            </li>
+        {{/each}}
+    </ul>
+
+    <!-- Paginación -->
+    <div>
+        {{#if prevLink}}
+            <a href="{{prevLink}}">Anterior</a>
+        {{/if}}
+
+        Página {{currentPage}} de {{totalPages}}
+
+        {{#if nextLink}}
+            <a href="{{nextLink}}">Siguiente</a>
+        {{/if}}
+    </div>
+</body>
+
+</html>
