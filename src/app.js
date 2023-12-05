@@ -30,7 +30,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Configurar Handlebars
 
 app.engine('handlebars', engine({
-  defaultLayout: 'main'
+  defaultLayout: 'main',
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+  }
 }));
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
@@ -48,9 +51,9 @@ connectToDataBase().then(() => {
   const cartManager = new CartManager()
   // Ruta para la vista Home.handlebars
   app.get('/', (req, res) => {
+
     // Renderiza la vista home.handlebars
-    const products = productManager.getProducts();
-    res.render('home', { products });
+    res.render('home');
   });
 
 
@@ -58,35 +61,48 @@ connectToDataBase().then(() => {
 
   // Rutas para productos y carritos
   app.get('/products', async (req, res) => {
-    const limit = parseInt(req.query.limit) || 10; 
+    const limit = 10;
     const page = parseInt(req.query.page) || 1;
-    const sort = req.query.sort; 
+    const sort = req.query.sort;
     const query = req.query.query;
   
+    //carrito por defecto, cambiar id hasta manejar sesiones
+    const cartId = '656a5e8c9babed92494e5a52'
     try {
-      // Obtener productos paginados usando la lógica existente en productManager
       const paginatedProducts = await productManager.getProducts({ limit, page, sort, query });
   
       // Renderizar la vista 'products.handlebars' con los productos paginados
-      res.render('products', { products: paginatedProducts.payload, currentPage: page });
+      res.render('products', {
+        products: paginatedProducts.payload,
+        currentPage: paginatedProducts.page,
+        totalPages: paginatedProducts.totalPages,
+        prevLink: paginatedProducts.hasPrevPage
+        ? `/products?${new URLSearchParams({ ...req.query, page: paginatedProducts.prevPage })}`
+        : null,
+      nextLink: paginatedProducts.hasNextPage
+        ? `/products?${new URLSearchParams({ ...req.query, page: paginatedProducts.nextPage })}`
+        : null,
+        cartId
+      });
     } catch (error) {
-      // Manejar errores
       console.error('Error al obtener productos:', error);
       res.status(500).send('Error al obtener productos');
     }
   });
 
 
-
   app.get('/products/:pid', async (req, res) => {
     const productId = req.params.pid;
+
+        //carrito por defecto, cambiar id hasta manejar sesiones
+        const cartId = '656a5e8c9babed92494e5a52'
 
     try {
         // Obtener el producto por su ID usando la lógica en productManager
         const product = await productManager.getProductById(productId);
 
         // Renderizar la vista 'productDetails.handlebars' con la información del producto
-        res.render('productDetails', { product });
+        res.render('productDetails', { product, cartId });
     } catch (error) {
         // Manejar errores
         console.error('Error al obtener producto por ID:', error);
@@ -96,8 +112,14 @@ connectToDataBase().then(() => {
 
 
 
-  app.post('/api/cart/:cid/products/:pid', async (req, res) => {
+  app.post('/cart/:cid/products/:pid', async (req, res) => {
     const { cid, pid } = req.params;
+    
+    //Como aún no trabajamos con sesiones paso un :cid
+    // por defecto, hay que cambiarlo segun los q tengamos en bd
+    if(!cid){
+      cid = '656a5e8c9babed92494e5a52'
+    }
   
     try {
       // Llamar a la función addToCart en el CartManager
@@ -114,7 +136,7 @@ connectToDataBase().then(() => {
 
 
 
-  app.get('/carts/:cid', async (req, res) => {
+  app.get('/cart/:cid', async (req, res) => {
     const { cid } = req.params;
 
     try {

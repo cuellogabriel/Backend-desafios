@@ -15,8 +15,8 @@
     <p>Categoría: {{product.category}}</p>
 
     <!-- Agregar formulario para agregar al carrito directamente -->
-    <form action="/api/cart/{{cartId}}/products/{{product._id}}" method="POST">
-        <input type="hidden" name="cartId" value="{{cartId}}">
+    <form action="/cart/{{cidDefault}}/products/{{product._id}}" method="POST">
+        <input type="hidden" name="cartId" value="{{cidDefault}}">
         <button type="submit">Agregar al Carrito</button>
     </form>
     
