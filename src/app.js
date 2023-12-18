@@ -10,9 +10,13 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import routes from './routes/index.js';
-import ProductManager from './managers/ProductManager.js';
-import CartManager from './managers/CartManager.js';
+import ProductDao from './daos/ProductDao.js';
+import CartDao from './daos/CartDao.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import session from 'express-session';
+import { mongoStoreOptions } from './mongoStore/connectionMongo.js';
+import { requireAuth } from './middlewares/auth.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -25,6 +29,7 @@ app.use(logger('dev'));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session(mongoStoreOptions))
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configurar Handlebars
@@ -47,29 +52,57 @@ connectToDataBase().then(() => {
   app.use(errorHandler);
 
 
-  const productManager = new ProductManager()
-  const cartManager = new CartManager()
-  // Ruta para la vista Home.handlebars
+  const productDao = new ProductDao()
+  const cartDao = new CartDao()
+  // Ruta para la vista login.handlebars
   app.get('/', (req, res) => {
 
-    // Renderiza la vista home.handlebars
-    res.render('home');
+    // Renderiza la vista login.handlebars
+    res.render('login');
   });
 
+// Ruta para la vista de registro
+app.get('/register', (req, res) => {
+  res.render('register');
+});
 
+// Ruta para errorLogin
+app.get('/errorLogin', (req, res) => {
+  res.render('errorLogin');
+});
+// Ruta para errorRegister
+app.get('/errorRegister', (req, res) => {
+  res.render('errorRegister');
+});
+// Ruta para errorCredencial
+app.get('/errorCredencial', (req, res) => {
+  res.render('errorCredencial');
+});
 
+// Ruta para la vista de perfil
+app.get('/profile', requireAuth, (req, res) => {
+  // Renderiza la vista de perfil con los datos del usuario
+  res.render('profile', { user: req.session.user });
+});
 
   // Rutas para productos y carritos
-  app.get('/products', async (req, res) => {
+  app.get('/products', requireAuth ,async (req, res) => {
+    const user = res.locals.user;
+
+    
     const limit = 10;
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(req.query.page, 10) || 1;
     const sort = req.query.sort;
     const query = req.query.query;
-  
+    
+    // Validar que req.query.page sea un número entero válido
+    if (isNaN(page) || page <= 0) {
+      return res.status(400).json({ error: 'El valor de la página no es válido' });
+    }
     //carrito por defecto, cambiar id hasta manejar sesiones
     const cartId = '656a5e8c9babed92494e5a52'
     try {
-      const paginatedProducts = await productManager.getProducts({ limit, page, sort, query });
+      const paginatedProducts = await productDao.getProducts({ limit, page, sort, query });
   
       // Renderizar la vista 'products.handlebars' con los productos paginados
       res.render('products', {
@@ -82,7 +115,8 @@ connectToDataBase().then(() => {
       nextLink: paginatedProducts.hasNextPage
         ? `/products?${new URLSearchParams({ ...req.query, page: paginatedProducts.nextPage })}`
         : null,
-        cartId
+        cartId,
+        user:user
       });
     } catch (error) {
       console.error('Error al obtener productos:', error);
@@ -98,8 +132,8 @@ connectToDataBase().then(() => {
         const cartId = '656a5e8c9babed92494e5a52'
 
     try {
-        // Obtener el producto por su ID usando la lógica en productManager
-        const product = await productManager.getProductById(productId);
+        // Obtener el producto por su ID usando la lógica en productDao
+        const product = await productDao.getProductById(productId);
 
         // Renderizar la vista 'productDetails.handlebars' con la información del producto
         res.render('productDetails', { product, cartId });
@@ -122,8 +156,9 @@ connectToDataBase().then(() => {
     }
   
     try {
-      // Llamar a la función addToCart en el CartManager
-      await cartManager.addToCart(pid, cid);
+      // Llamar a la función addToCart en el CartDao
+  
+      await cartDao.addToCart(pid, cid);
   
       // Redirigir a la página de productos con un mensaje de éxito
       res.redirect('/products?successMessage=Producto agregado al carrito');
@@ -140,8 +175,8 @@ connectToDataBase().then(() => {
     const { cid } = req.params;
 
     try {
-        // Obtener el contenido del carrito usando la lógica en cartManager
-        const cartInfo = await cartManager.getCartContents(cid);
+        // Obtener el contenido del carrito usando la lógica en cartDao
+        const cartInfo = await cartDao.getCartContents(cid);
 
         // Renderizar la vista 'cart.handlebars' con la información del carrito
         res.render('cart', { cartInfo });

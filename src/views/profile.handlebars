@@ -1,0 +1,23 @@
+<!-- views/profile.handlebars -->
+<html>
+
+<head>
+    <title>Perfil</title>
+</head>
+
+<body>
+    <h1>Perfil de Usuario</h1>
+
+    {{#if user}}
+        <p>ID: {{user.id}}</p>
+        <p>Correo Electrónico: {{user.email}}</p>
+        <p>Nombre: {{user.first_name}} {{user.last_name}}</p>
+        <p>Edad: {{user.age}}</p>
+        <p>Rol: {{user.role}}</p>
+        <!-- Otros datos no sensibles del usuario -->
+    {{else}}
+        <p>No se pudo cargar el perfil.</p>
+    {{/if}}
+</body>
+
+</html>

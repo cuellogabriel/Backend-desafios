@@ -6,10 +6,20 @@
 </head>
 
 <body>
+
+    {{#if user}}
+    <p>Bienvenido, {{user.role}} {{user.first_name}}</p>
+    <p>Email: {{user.email}}</p>
+    <p>Edad: {{user.age}}</p>
+    {{/if}}
     <h1>Lista de Productos</h1>
     
-   
-    
+    <!--  Botón de Logout-->
+    <form action="/api/userSession/logout" method="POST">
+        <button type="submit">Cerrar Sesión</button>
+    </form>
+
+
     <!-- Mostrar mensajes de éxito o error -->
     {{#if successMessage}}
         <p style="color: green;">{{successMessage}}</p>

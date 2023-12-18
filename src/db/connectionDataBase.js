@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const connectionMongoDB = 'mongodb://127.0.0.1:27017/e-commerce';
+export const connectionMongoDB = 'mongodb://127.0.0.1:27017/e-commerce';
 
 async function connectToDataBase(){
     try {

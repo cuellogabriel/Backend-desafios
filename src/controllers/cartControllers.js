@@ -1,11 +1,11 @@
-import CartManager from '../managers/CartManager.js';
+import CartDao from '../daos/CartDao.js';
 
-const cartManager = new CartManager();
+const cartDao = new CartDao();
 
 // Crear un nuevo carrito
 const createCart = async (req, res, next) => {
   try {
-    const newCart = await cartManager.createCart();
+    const newCart = await cartDao.createCart();
     res.json(newCart);
   } catch (error) {
     next(error);
@@ -16,7 +16,7 @@ const createCart = async (req, res, next) => {
 const getCartById = async (req, res, next) => {
   try {
     const cartId = req.params.cid;
-    const cart = await cartManager.getCartContents(cartId);
+    const cart = await cartDao.getCartContents(cartId);
     res.json(cart);
   } catch (error) {
     next(error);
@@ -29,7 +29,7 @@ const addProductToCart = async (req, res, next) => {
     const productId = req.params.pid;
     const cartId = req.params.cid;
 
-    const cart = await cartManager.addToCart(productId, cartId);
+    const cart = await cartDao.addToCart(productId, cartId);
     res.json(cart);
   } catch (error) {
     next(error);
@@ -42,7 +42,7 @@ const removeProductFromCart = async (req, res, next) => {
     const productId = req.params.pid;
     const cartId = req.params.cid;
 
-    const cart = await cartManager.removeFromCart(productId, cartId);
+    const cart = await cartDao.removeFromCart(productId, cartId);
     res.json(cart);
   } catch (error) {
     next(error);
@@ -54,7 +54,7 @@ const clearCart = async (req, res, next) => {
   try {
     const cartId = req.params.cid;
 
-    const cart = await cartManager.clearCart(cartId);
+    const cart = await cartDao.clearCart(cartId);
     res.json(cart);
   } catch (error) {
     next(error);
@@ -67,7 +67,7 @@ const updateCart = async (req, res, next) => {
     const cartId = req.params.cid;
     const updatedCart = req.body;
 
-    const cart = await cartManager.updateCart(cartId, updatedCart);
+    const cart = await cartDao.updateCart(cartId, updatedCart);
     res.json(cart);
   } catch (error) {
     next(error);
@@ -89,7 +89,7 @@ const updateProductQuantity = async (req, res, next) => {
       return;
     }
 
-    const cart = await cartManager.updateProductQuantity(productId, cartId, quantity);
+    const cart = await cartDao.updateProductQuantity(productId, cartId, quantity);
     res.json(cart);
   } catch (error) {
     next(error);
